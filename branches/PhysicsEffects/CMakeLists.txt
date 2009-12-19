@@ -65,4 +65,4 @@ IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 	OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" OFF)
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 
-SUBDIRS(Physics/RigidBody Physics/RigidBody/common Tutorials/HelloWorld)
+SUBDIRS(Physics/RigidBody Physics/RigidBody/common Tutorials/HelloWorld Plugins/PfxCommonFormat)

@@ -10,6 +10,9 @@ endif(WIN32)
 
 PROJECT(PHYSICS_EFFECTS)
 SET(PHYSICS_EFFECTS_VERSION 1.310)
+SET(BULLET_VERSION 2.76)
+
+SET(BULLET_PHYSICS_SOURCE_DIR ${PHYSICS_EFFECTS_SOURCE_DIR})
 
 IF (NOT CMAKE_BUILD_TYPE)
 # SET(CMAKE_BUILD_TYPE "Debug")
@@ -17,7 +20,7 @@ IF (NOT CMAKE_BUILD_TYPE)
 ENDIF (NOT CMAKE_BUILD_TYPE) 
 
 # string (REPLACE "/D_WINDOWS" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-remove_definitions(-D_WINDOWS )
+#remove_definitions(-D_WINDOWS )
    
 IF(COMMAND cmake_policy)
    cmake_policy(SET CMP0003 NEW)
@@ -73,4 +76,4 @@ IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 	OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" OFF)
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 
-SUBDIRS(Physics/RigidBody Physics/RigidBody/common Tutorials/HelloWorld Plugins/PfxCommonFormat Physics/RayCast/common Physics/RayCast  )
+SUBDIRS(Physics/RigidBody Physics/RigidBody/common Tutorials/HelloWorld Plugins/PfxCommonFormat Physics/RayCast/common Physics/RayCast src Demos )

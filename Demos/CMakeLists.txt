@@ -1,1 +1,1 @@
-SUBDIRS(OpenGL  BasicDemo )
+SUBDIRS(OpenGL  BasicDemo BulletPhysicsEffects )

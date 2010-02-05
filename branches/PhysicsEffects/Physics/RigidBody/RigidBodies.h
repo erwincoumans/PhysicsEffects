@@ -257,6 +257,7 @@ friend class HeightFluid;
 friend class RayCast;
 friend class Particles;
 friend class SoftBodies;
+friend class btPhysicsEffectsWorld;
 
 private:
 	HeapManager *mPool;
@@ -599,6 +600,21 @@ public:
 	inline uint32_t	getJointCount() {return numJoints;}
 	inline uint32_t	getSpringCount() {return numSprings;}
 	inline uint32_t	getContactCount() {return numContactPairs;}
+
+	void	setContactCount(int count)
+	{
+		numContactPairs = count;
+	}
+	void	setJointCount(int count) 
+	{
+		numJoints = count;
+	}
+
+	void	setInstanceCount(int count) 
+	{
+		numInstances = count;
+		numBodies = count;//??
+	}
 
 	inline TrbDynBody	*getTrbDynBody(int stateIndex) {return &bodies[statesBuffer[readBuffer][stateIndex].trbBodyIdx];}
 	inline CollObject	*getCollObject(int stateIndex) {return getTrbDynBody(stateIndex)->getCollObject();}

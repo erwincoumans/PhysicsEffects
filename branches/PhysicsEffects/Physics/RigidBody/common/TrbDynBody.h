@@ -50,6 +50,17 @@ public:
 	void           setElasticity(float elasticity) {fElasticity = elasticity;}
 	void           setFriction(float friction) {fFriction = friction;}
 	void           setCollObject(CollObject *collObj) {fCollObject = collObj;}
+	
+	void           setBodyInertiaInv(const Matrix3 bodyInertiaInv) 
+	{
+		fIBody = inverse(bodyInertiaInv);
+		fIBodyInv = bodyInertiaInv;
+	}
+	void           setMassInv(float invMass) {
+		fMass= invMass>0.0f ? 1.0f/invMass :0.0f;
+		fMassInv=invMass;
+	}
+
 
 private:
 	// Rigid Body constants

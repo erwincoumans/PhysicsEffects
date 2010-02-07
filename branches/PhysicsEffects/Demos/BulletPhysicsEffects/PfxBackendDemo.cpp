@@ -13,20 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
-///create 125 (5x5x5) dynamic object
-#define ARRAY_SIZE_X 5
-#define ARRAY_SIZE_Y 5
-#define ARRAY_SIZE_Z 5
-
-//maximum number of objects (and allow user to shoot additional boxes)
-#define MAX_PROXIES (ARRAY_SIZE_X*ARRAY_SIZE_Y*ARRAY_SIZE_Z + 1024)
-
-///scaling of the objects (0.1 = 20 centimeter boxes )
-#define SCALING 1.
-#define START_POS_X -5
-#define START_POS_Y -5
-#define START_POS_Z -3
+//#define USE_PHYSICSEFFECTS_SOLVER
+#define USE_PARALLEL_DISPATCHER
 
 #include "PfxBackendDemo.h"
 #include "btPhysicsEffectsWorld.h"
@@ -35,6 +23,27 @@ subject to the following restrictions:
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include <stdio.h> //printf debugging
+
+
+#include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+#include "BulletMultiThreaded/PlatformDefinitions.h"
+#include "BulletMultiThreaded/SpuContactManifoldCollisionAlgorithm.h"
+
+
+#if defined (_WIN32)
+#include "BulletMultiThreaded/Win32ThreadSupport.h"
+#include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+
+#elif defined (USE_PTHREADS)
+
+#include "BulletMultiThreaded/PosixThreadSupport.h"
+#include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+
+#else
+//other platforms run the parallel code sequentially (until pthread support or other parallel implementation is added)
+#include "BulletMultiThreaded/SequentialThreadSupport.h"
+#include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+#endif //WIN32
 
 class DemoApplication* createDemo()
 {
@@ -88,34 +97,66 @@ void	PfxBackendDemo::initPhysics()
 	setTexturing(true);
 	setShadows(true);
 
-	setCameraDistance(btScalar(SCALING*50.));
+	setCameraDistance(btScalar(50.));
 
+	
+	btDefaultCollisionConstructionInfo configInfo;
+	
+	configInfo.m_customCollisionAlgorithmMaxElementSize = sizeof(SpuContactManifoldCollisionAlgorithm);
+	
 	///collision configuration contains default setup for memory, collision setup
-	m_collisionConfiguration = new btDefaultCollisionConfiguration();
+	m_collisionConfiguration = new btDefaultCollisionConfiguration(configInfo);
 	//m_collisionConfiguration->setConvexConvexMultipointIterations();
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+
+#ifdef USE_PARALLEL_DISPATCHER
+	int maxNumOutstandingTasks = 4;//4;
+#ifdef USE_WIN32_THREADING
+	m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo("collision",processCollisionTask,	createCollisionLocalStoreMemory,maxNumOutstandingTasks));
+#elif defined (USE_PTHREADS)
+    PosixThreadSupport::ThreadConstructionInfo constructionInfo("collision",processCollisionTask,createCollisionLocalStoreMemory,maxNumOutstandingTasks);
+    m_threadSupportCollision = new PosixThreadSupport(constructionInfo);
+#else
+	SequentialThreadSupport::SequentialThreadConstructionInfo colCI("collision",processCollisionTask,createCollisionLocalStoreMemory);
+	SequentialThreadSupport* m_threadSupportCollision = new SequentialThreadSupport(colCI);
+#endif //USE_WIN32_THREADING
+	m_dispatcher = new	SpuGatheringCollisionDispatcher(m_threadSupportCollision,maxNumOutstandingTasks,m_collisionConfiguration);
+#else //USE_PARALLEL_DISPATCHER
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
+#endif
+
+
+
+
 	m_dispatcher->setDispatcherFlags(0);
+	
 
 
 
-	m_broadphase = new btDbvtBroadphase();
+	//m_broadphase = new btDbvtBroadphase();
+	m_broadphase = new btAxisSweep3(btVector3(-1000,-1000,-1000),btVector3(1000,1000,1000));
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
 	m_solver = sol;
 
-	//m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
-	int numMaxSpus = 1;
+#if USE_PHYSICSEFFECTS_SOLVER
 	m_dynamicsWorld = new btPhysicsEffectsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+#else
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	m_dynamicsWorld->getSolverInfo().m_numIterations = 4;
+	//m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 64;//8192;
+	int numMaxSpus = 1;
+	
+#endif
 
 	m_dynamicsWorld->setForceUpdateAllAabbs(false);
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 	///create a few basic rigid bodies
-	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(250.),btScalar(50.),btScalar(250.)));
 //	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
 	
 	m_collisionShapes.push_back(groundShape);
@@ -149,7 +190,7 @@ void	PfxBackendDemo::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
+		btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
 
@@ -166,36 +207,36 @@ void	PfxBackendDemo::initPhysics()
 		if (isDynamic)
 			colShape->calculateLocalInertia(mass,localInertia);
 
-		float start_x = START_POS_X - ARRAY_SIZE_X/2;
-		float start_y = START_POS_Y;
-		float start_z = START_POS_Z - ARRAY_SIZE_Z/2;
 
-		for (int k=0;k<ARRAY_SIZE_Y;k++)
+		int size = 8;
+		const float cubeSize = 1.0f;
+		float spacing = cubeSize;
+		btVector3 pos(0.0f, cubeSize * 2, 0.0f);
+		float offset = -size * (cubeSize * 2.0f + spacing) * 0.5f;
+
+		for(int k=0;k<47;k++) 
 		{
-			for (int i=0;i<ARRAY_SIZE_X;i++)
+			for(int j=0;j<size;j++) 
 			{
-				for(int j = 0;j<ARRAY_SIZE_Z;j++)
-				{
-					startTransform.setOrigin(SCALING*btVector3(
-										2.0*i + start_x,
-										20+2.0*k + start_y,
-										2.0*j + start_z));
+				pos[2] = offset + (float)j * (cubeSize * 2.0f + spacing);
+				for(int i=0;i<size;i++) {
+					pos[0] = offset + (float)i * (cubeSize * 2.0f + spacing);
 
-			
-					//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-					btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
-					btRigidBody* body = new btRigidBody(rbInfo);
+					btVector3 boxSize = btVector3(cubeSize,cubeSize,cubeSize);
+					btTransform trans;
+					trans.setIdentity();
+					trans.setOrigin(pos);
+					localCreateRigidBody(1,trans,colShape);
 					
-					body->setActivationState(ISLAND_SLEEPING);
-
-					m_dynamicsWorld->addRigidBody(body);
-					body->setActivationState(ISLAND_SLEEPING);
 				}
 			}
+			offset -= 0.05f * spacing * (size-1);
+			spacing *= 1.01f;
+			pos[1] += (cubeSize * 2.0f + spacing);
 		}
-	}
+	
 
+	}
 
 	clientResetScene();
 }

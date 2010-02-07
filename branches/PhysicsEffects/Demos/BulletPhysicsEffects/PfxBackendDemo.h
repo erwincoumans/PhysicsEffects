@@ -37,6 +37,8 @@ class PfxBackendDemo : public Win32DemoApplication
 
 	btCollisionDispatcher*	m_dispatcher;
 
+	class	btThreadSupportInterface*		m_threadSupportCollision;
+
 	btConstraintSolver*	m_solver;
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;

@@ -20,7 +20,7 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL  ${PH
 
 if (WIN32)
 LINK_LIBRARIES(
-OpenGLSupport  BulletDynamics  BulletCollision LinearMath   PhysicsEffectsRigidBody  PhysicsEffectsCollision ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+OpenGLSupport  BulletMultiThreaded BulletDynamics  BulletCollision LinearMath   PhysicsEffectsRigidBody  PhysicsEffectsCollision ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 	ADD_EXECUTABLE(AppPfxBackend
@@ -36,7 +36,7 @@ else (WIN32)
 
 
 LINK_LIBRARIES(
-OpenGLSupport  BulletDynamics  BulletCollision LinearMath   PhysicsEffectsRigidBody PhysicsEffectsCollision  ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+OpenGLSupport BulletMultiThreaded  BulletDynamics  BulletCollision LinearMath   PhysicsEffectsRigidBody PhysicsEffectsCollision  ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 

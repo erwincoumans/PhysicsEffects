@@ -93,8 +93,12 @@ public:
 
 	float getCountTime(int i)
 	{
+#if _WIN32
 	return (float)(m_cnt[i+1]-m_cnt[i]) / m_freq * 1000.0f;
-	}
+#else
+	return 0.f;
+#endif	
+}
 
 	void printCount()
 	{

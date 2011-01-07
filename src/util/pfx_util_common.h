@@ -24,9 +24,9 @@ Physics Effects under the filename: physics_effects_license.txt
 	#define SCE_PFX_UTIL_REALLOC(ptr,align,size) _aligned_realloc(ptr,size,align)
 	#define SCE_PFX_UTIL_FREE(ptr) if(ptr) {_aligned_free(ptr);ptr=NULL;}
 #else
-	#define SCE_PFX_UTIL_ALLOC(align,size) memalign(align,size)
-	#define SCE_PFX_UTIL_REALLOC(ptr,align,size) reallocalign(ptr,size,align)
-	#define SCE_PFX_UTIL_FREE(ptr) if(ptr) {free(ptr);ptr=NULL;}
+	#define SCE_PFX_UTIL_ALLOC(align,size) malloc(size)
+        #define SCE_PFX_UTIL_REALLOC(ptr,align,size) realloc(ptr,size)
+        #define SCE_PFX_UTIL_FREE(ptr) if(ptr) {free(ptr);ptr=NULL;}
 #endif
 
 #endif // _SCE_PFX_UTIL_COMMON_H

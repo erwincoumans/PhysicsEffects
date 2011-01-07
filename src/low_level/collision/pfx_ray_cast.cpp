@@ -24,7 +24,6 @@ Physics Effects under the filename: physics_effects_license.txt
 namespace sce {
 namespace PhysicsEffects {
 
-#if defined(_WIN32)  
 
 void pfxRayTraverseForward(
 	const PfxRayInput &ray,PfxRayOutput &out,const PfxAabb16 &rayAABB,
@@ -162,7 +161,6 @@ void pfxRayTraverseBackward(
 	}
 }
 
-#endif
 
 void pfxCastSingleRay(const PfxRayInput &ray,PfxRayOutput &out,const PfxRayCastParam &param)
 {

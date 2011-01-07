@@ -10,7 +10,7 @@ IF (WIN32)
 	4_motion_type
 	5_raycast
 	6_joint
-#	99_bullet_highlevel
+	99_bullet_highlevel
 #	common
 	)
 ENDIF()

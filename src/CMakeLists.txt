@@ -3,3 +3,9 @@ SUBDIRS(
 	low_level 
 	util 
 )
+
+SUBDIRS(
+	BulletDynamics
+	BulletCollision
+	LinearMath
+)

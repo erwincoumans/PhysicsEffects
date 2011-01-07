@@ -1,4 +1,4 @@
-INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_EFFECTS_SOURCE_DIR}/include  )
+INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/include  )
 
 SET(PfxLowLevel_SRCS
 					broadphase/pfx_broadphase_single.cpp

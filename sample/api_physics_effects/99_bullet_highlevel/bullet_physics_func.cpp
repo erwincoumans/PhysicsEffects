@@ -28,14 +28,14 @@ Physics Effects under the filename: physics_effects_license.txt
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletMultiThreaded/vectormath2bullet.h"
 #include "../common/render_func.h"
-
+#if 0
 #ifdef _WIN32
 #include "BulletMultiThreaded/Win32ThreadSupport.h"
 #endif
 
 btThreadSupportInterface* createSolverThreadSupport(int maxNumThreads)
 {
-//#define SEQUENTIAL
+#define SEQUENTIAL
 #ifdef SEQUENTIAL
 	SequentialThreadSupport::SequentialThreadConstructionInfo tci("solverThreads",SolverThreadFunc,SolverlsMemoryFunc);
 	SequentialThreadSupport* threadSupport = new SequentialThreadSupport(tci);
@@ -62,6 +62,7 @@ btThreadSupportInterface* createSolverThreadSupport(int maxNumThreads)
 
 	return threadSupport;
 }
+#endif
 
 
 class PEDebugDrawer : public btIDebugDraw
@@ -542,7 +543,7 @@ static void cleanupBullet(void)
 	{
 		delete m_dynamicsWorld;
 		delete m_solver;
-		delete sThreadSupport;
+//		delete sThreadSupport;
 		delete m_broadphase;
 		delete m_dispatcher;
 		delete m_config;
@@ -639,7 +640,7 @@ static void convertToBullet(void)
 //#ifdef USE_PARALLEL_SOLVER
 //	m_solver = new btSequentialImpulseConstraintSolver();
 //#else
-	sThreadSupport = createSolverThreadSupport(4);
+	//sThreadSupport = createSolverThreadSupport(4);
 	//m_solver = new btLowLevelConstraintSolver(sThreadSupport);
 	m_solver = new btLowLevelConstraintSolver2(lowLevelData);
 //#endif //USE_PARALLEL_SOLVER

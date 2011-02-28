@@ -400,13 +400,12 @@ void detectCollisionLargeTriMesh(
 			contacts.addContactPoint(
 				localContacts.getDistance(i),
 				-localContacts.getNormal(i),
-				offsetTransformB * localContacts.getLocalPointB(i),
-				offsetTransformA * localContacts.getLocalPointA(i),
+				offsetTransformA * localContacts.getLocalPointB(i),
+				offsetTransformB * localContacts.getLocalPointA(i),
 				localContacts.getSubData(i));
 		}
 	}
 }
-
 ///////////////////////////////////////////////////////////////////////////////
 // Collision Detection Function Table
 

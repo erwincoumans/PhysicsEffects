@@ -20,7 +20,6 @@ subject to the following restrictions:
 
 #include "LinearMath/btQuickprof.h"
 #include "BulletMultiThreaded/btThreadSupportInterface.h"
-#include "vecmath/vmInclude.h"
 #include "BulletMultiThreaded/HeapManager.h"
 #include "BulletMultiThreaded/PlatformDefinitions.h"
 #include "BulletPhysicsEffects/btLowLevelData.h"

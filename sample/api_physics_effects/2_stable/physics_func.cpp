@@ -20,8 +20,8 @@ Physics Effects under the filename: physics_effects_license.txt
 ///////////////////////////////////////////////////////////////////////////////
 // Simulation Data
 
-#define NUM_RIGIDBODIES 500
-#define NUM_JOINTS    500
+#define NUM_RIGIDBODIES 5000
+#define NUM_JOINTS    5000
 #define NUM_CONTACTS  4000
 
 const float timeStep = 0.016f;
@@ -689,7 +689,15 @@ void createSceneJoints()
 
 void createSceneStacking()
 {
-	createTowerCircle(PfxVector3(0.0f,0.0f,0.0f),8,24,PfxVector3(1));
+       const float cubeSize = 1.0f;
+
+       createPyramid(PfxVector3(-20.0f,0.0f,0.0f),12,PfxVector3(cubeSize,cubeSize,cubeSize));
+       createWall(PfxVector3(-2.0f,0.0f,0.0f),12,PfxVector3(cubeSize,cubeSize,cubeSize));
+       createWall(PfxVector3(4.0f,0.0f,0.0f),12,PfxVector3(cubeSize,cubeSize,cubeSize));
+       createWall(PfxVector3(10.0f,0.0f,0.0f),12,PfxVector3(cubeSize,cubeSize,cubeSize));
+       createTowerCircle(PfxVector3(25.0f,0.0f,0.0f),8,24,PfxVector3(cubeSize,cubeSize,cubeSize));
+
+//	createTowerCircle(PfxVector3(0.0f,0.0f,0.0f),8,24,PfxVector3(1));
 }
 
 void createSceneBoxGround()

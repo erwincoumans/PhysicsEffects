@@ -31,8 +31,8 @@ ADD_EXECUTABLE(App_0_Console
 	${App_0_Console_HDRS}
 )
 TARGET_LINK_LIBRARIES(App_0_Console
-	PfxBaseLevel
 	PfxLowLevel
+	PfxBaseLevel
 	PfxUtil
 )
 

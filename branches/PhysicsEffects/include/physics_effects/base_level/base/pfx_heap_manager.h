@@ -32,8 +32,14 @@ Physics Effects under the filename: physics_effects_license.txt
 	#define SCE_PFX_ALIGN_MASK_16	0xfffffffffffffff0
 	#define SCE_PFX_ALIGN_MASK_128	0xffffffffffffff80
 #else
+
+#ifdef __LP64__
+	#define SCE_PFX_ALIGN_MASK_16	0xfffffffffffffff0
+	#define SCE_PFX_ALIGN_MASK_128	0xffffffffffffff80
+#else
 	#define SCE_PFX_ALIGN_MASK_16	0xfffffff0
 	#define SCE_PFX_ALIGN_MASK_128	0xffffff80
+#endif //#ifdef __LP64__
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -28,18 +28,12 @@ Physics Effects under the filename: physics_effects_license.txt
 #define SCE_PFX_ALLOC_BYTES_ALIGN16(bytes) SCE_PFX_MAX(16,SCE_PFX_BYTES_ALIGN16(bytes))
 #define SCE_PFX_ALLOC_BYTES_ALIGN128(bytes) SCE_PFX_MAX(128,SCE_PFX_BYTES_ALIGN128(bytes))
 
-#ifdef	_WIN64
-	#define SCE_PFX_ALIGN_MASK_16	0xfffffffffffffff0
-	#define SCE_PFX_ALIGN_MASK_128	0xffffffffffffff80
-#else
-
-#ifdef __LP64__
+#if defined (_WIN64) || defined (__LP64__)
 	#define SCE_PFX_ALIGN_MASK_16	0xfffffffffffffff0
 	#define SCE_PFX_ALIGN_MASK_128	0xffffffffffffff80
 #else
 	#define SCE_PFX_ALIGN_MASK_16	0xfffffff0
 	#define SCE_PFX_ALIGN_MASK_128	0xffffff80
-#endif //#ifdef __LP64__
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

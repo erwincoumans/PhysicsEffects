@@ -189,8 +189,9 @@ void	btBulletPhysicsEffectsWorld::solveConstraints(btContactSolverInfo& solverIn
 	{
 
 		btCollisionObject** bodies = numBodies ? &getCollisionObjectArray()[0] : 0;
-		
-		getConstraintSolver()->solveGroup( bodies,numBodies, disp->getInternalManifoldPointer(),numManifolds, &m_constraints[0], m_constraints.size() ,m_solverInfo,m_debugDrawer,m_stackAlloc,disp);
+		btTypedConstraint** constraints = m_constraints.size() ? &m_constraints[0] : 0;
+
+		getConstraintSolver()->solveGroup( bodies,numBodies, disp->getInternalManifoldPointer(),numManifolds, constraints, m_constraints.size() ,m_solverInfo,m_debugDrawer,m_stackAlloc,disp);
 	}
 }
 

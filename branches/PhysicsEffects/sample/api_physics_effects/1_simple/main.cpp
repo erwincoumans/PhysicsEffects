@@ -27,6 +27,20 @@ Physics Effects under the filename: physics_effects_license.txt
 	#include <gl/glu.h>
 #endif
 
+// ARA begin insert new code
+#ifdef __ANDROID__
+	#include <EGL/egl.h>
+	#include <GLES/gl.h>
+	#include <cpu-features.h>	// used to check for presence of NEON on device
+	#ifdef __ARM_NEON__
+		#include <arm_neon.h>
+#ifdef TEST_NEON_PERFORMANCE	// define this to run NEON performance tests
+		#include "../../test_ARM_NEON_performance/test_neon.h"
+#endif
+	#endif	// __ARM_NEON__
+#endif // __ANDROID__
+// ARA end
+
 #define	SAMPLE_NAME "api_physics_effects/1_simple"
 
 static bool s_isRunning = true;
@@ -37,7 +51,7 @@ bool simulating = false;
 int landscapeMeshId;
 int convexMeshId;
 
-static void render(void)
+void render(void)
 {
 	render_begin();
 	
@@ -107,8 +121,48 @@ static void render(void)
 	render_end();
 }
 
-static int init(void)
+// ARA begin insert new code
+#ifdef __ANDROID__
+static void runNEONTests()
 {
+	uint64_t features = android_getCpuFeatures();
+	if ((features & ANDROID_CPU_ARM_FEATURE_NEON) == 0)
+	{
+		SCE_PFX_PRINTF("CPU has NO support for NEON.");
+	}
+	else
+	{
+		SCE_PFX_PRINTF("CPU HAS support for NEON.\n");
+
+#ifdef __ARM_NEON__
+#ifdef TEST_NEON_PERFORMANCE
+		SCE_PFX_PRINTF("Running NEON performance tests...\n");
+
+		TestNeonDotProduct();
+		TestNeonCrossProduct();
+		TestNeonMatrix3OperatorMultiply();
+		TestNeonMatrix4OperatorMultiply();
+		TestNeonOrthoInverseTransform3();
+		TestNeonTransform3OperatorMultiply();
+		TestNeonTransposeMatrix3();
+		TestNeonSolveLinearConstraintRow();
+
+		SCE_PFX_PRINTF("Finished NEON performance tests.");
+#endif	// TEST_NEON_PERFORMANCE
+#endif	// __ARM_NEON__
+	}
+}
+#endif // __ANDROID__
+// ARA end
+
+int init(void)
+{
+// ARA begin insert new code
+#ifdef __ANDROID__
+	runNEONTests();
+#endif
+// ARA end
+
 	perf_init();
 	ctrl_init();
 	render_init();
@@ -139,7 +193,7 @@ static int shutdown(void)
 	return 0;
 }
 
-static void update(void)
+void update(void)
 {
 	float angX,angY,r;
 	render_get_view_angle(angX,angY,r);
@@ -200,6 +254,22 @@ static void update(void)
 
 #ifndef _WIN32
 
+// ARA begin insert new code
+#ifdef	__ANDROID__
+
+///////////////////////////////////////////////////////////////////////////////
+// sceneChange
+//
+/// This function is used to change the physics scene on Android devices
+///////////////////////////////////////////////////////////////////////////////
+void sceneChange()
+{
+	physics_create_scene(sceneId++);
+}
+
+#else	// __ANDROID__
+// ARA end
+
 ///////////////////////////////////////////////////////////////////////////////
 // Main
 
@@ -226,7 +296,11 @@ int main(void)
 	return 0;
 }
 
-#else
+// ARA begin insert new code
+#endif	// __ANDROID__
+// ARA end
+
+#else	// _WIN32
 
 ///////////////////////////////////////////////////////////////////////////////
 // WinMain

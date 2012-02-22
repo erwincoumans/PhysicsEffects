@@ -27,6 +27,13 @@ Physics Effects under the filename: physics_effects_license.txt
 	#include <gl/glu.h>
 #endif
 
+// ARA begin insert new code
+#ifdef __ANDROID__
+	#include <EGL/egl.h>
+	#include <GLES/gl.h>
+#endif
+// ARA end
+
 #define	SAMPLE_NAME "api_physics_effects/3_sleep"
 
 #define ENABLE_DEBUG_DRAW
@@ -45,7 +52,7 @@ bool simulating = false;
 int landscapeMeshId;
 int convexMeshId;
 
-static void render(void)
+void render(void)
 {
 	render_begin();
 
@@ -171,7 +178,7 @@ static void render(void)
 	render_end();
 }
 
-static int init(void)
+int init(void)
 {
 	perf_init();
 	ctrl_init();
@@ -203,7 +210,7 @@ static int shutdown(void)
 	return 0;
 }
 
-static void update(void)
+void update(void)
 {
 	float angX,angY,r;
 	render_get_view_angle(angX,angY,r);
@@ -264,6 +271,22 @@ static void update(void)
 
 #ifndef _WIN32
 
+// ARA begin insert new code
+#ifdef	__ANDROID__
+
+///////////////////////////////////////////////////////////////////////////////
+// sceneChange
+//
+/// This function is used to change the physics scene on Android devices
+///////////////////////////////////////////////////////////////////////////////
+void sceneChange()
+{
+	physics_create_scene(sceneId++);
+}
+
+#else	// __ANDROID__
+// ARA end
+
 ///////////////////////////////////////////////////////////////////////////////
 // Main
 
@@ -290,7 +313,11 @@ int main(void)
 	return 0;
 }
 
-#else
+// ARA begin insert new code
+#endif	// __ANDROID__
+// ARA end
+
+#else	// _WIN32
 
 ///////////////////////////////////////////////////////////////////////////////
 // WinMain

@@ -143,15 +143,39 @@ void pfxSolveContactConstraint(
 		inertiaInvA = PfxMatrix3(0.0f);
 	}
 
+// ARA begin insert new code
+#ifdef __ARM_NEON__
+	pfxSolveLinearConstraintRowNEON(constraintResponse,
+		solverBodyA.m_deltaLinearVelocity,solverBodyA.m_deltaAngularVelocity,massInvA,inertiaInvA,rA,
+		solverBodyB.m_deltaLinearVelocity,solverBodyB.m_deltaAngularVelocity,massInvB,inertiaInvB,rB);
+#else // __ARM_NEON__
+// ARA end
+
 	pfxSolveLinearConstraintRow(constraintResponse,
 		solverBodyA.m_deltaLinearVelocity,solverBodyA.m_deltaAngularVelocity,massInvA,inertiaInvA,rA,
 		solverBodyB.m_deltaLinearVelocity,solverBodyB.m_deltaAngularVelocity,massInvB,inertiaInvB,rB);
+
+// ARA begin insert new code
+#endif // __ARM_NEON__
+// ARA end
 
 	PfxFloat mf = friction*fabsf(constraintResponse.m_accumImpulse);
 	constraintFriction1.m_lowerLimit = -mf;
 	constraintFriction1.m_upperLimit =  mf;
 	constraintFriction2.m_lowerLimit = -mf;
 	constraintFriction2.m_upperLimit =  mf;
+
+// ARA begin insert new code
+#ifdef __ARM_NEON__
+	pfxSolveLinearConstraintRowNEON(constraintFriction1,
+		solverBodyA.m_deltaLinearVelocity,solverBodyA.m_deltaAngularVelocity,massInvA,inertiaInvA,rA,
+		solverBodyB.m_deltaLinearVelocity,solverBodyB.m_deltaAngularVelocity,massInvB,inertiaInvB,rB);
+
+	pfxSolveLinearConstraintRowNEON(constraintFriction2,
+		solverBodyA.m_deltaLinearVelocity,solverBodyA.m_deltaAngularVelocity,massInvA,inertiaInvA,rA,
+		solverBodyB.m_deltaLinearVelocity,solverBodyB.m_deltaAngularVelocity,massInvB,inertiaInvB,rB);
+#else // __ARM_NEON__
+// ARA end
 
 	pfxSolveLinearConstraintRow(constraintFriction1,
 		solverBodyA.m_deltaLinearVelocity,solverBodyA.m_deltaAngularVelocity,massInvA,inertiaInvA,rA,
@@ -160,6 +184,10 @@ void pfxSolveContactConstraint(
 	pfxSolveLinearConstraintRow(constraintFriction2,
 		solverBodyA.m_deltaLinearVelocity,solverBodyA.m_deltaAngularVelocity,massInvA,inertiaInvA,rA,
 		solverBodyB.m_deltaLinearVelocity,solverBodyB.m_deltaAngularVelocity,massInvB,inertiaInvB,rB);
+
+// ARA begin insert new code
+#endif // __ARM_NEON__
+// ARA end
 }
 
 } //namespace PhysicsEffects

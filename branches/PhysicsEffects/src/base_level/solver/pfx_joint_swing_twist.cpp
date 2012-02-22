@@ -218,6 +218,22 @@ void pfxSolveSwingTwistJoint(
 	PfxVector3 rB = rotate(solverBodyB.m_orientation,joint.m_anchorB);
 
 	// Linear Constraint
+// ARA begin insert new code
+#ifdef __ARM_NEON__
+	pfxSolveLinearConstraintRowNEON(joint.m_constraints[0].m_constraintRow,
+		solverBodyA.m_deltaLinearVelocity,solverBodyA.m_deltaAngularVelocity,solverBodyA.m_massInv,solverBodyA.m_inertiaInv,rA,
+		solverBodyB.m_deltaLinearVelocity,solverBodyB.m_deltaAngularVelocity,solverBodyB.m_massInv,solverBodyB.m_inertiaInv,rB);
+
+	pfxSolveLinearConstraintRowNEON(joint.m_constraints[1].m_constraintRow,
+		solverBodyA.m_deltaLinearVelocity,solverBodyA.m_deltaAngularVelocity,solverBodyA.m_massInv,solverBodyA.m_inertiaInv,rA,
+		solverBodyB.m_deltaLinearVelocity,solverBodyB.m_deltaAngularVelocity,solverBodyB.m_massInv,solverBodyB.m_inertiaInv,rB);
+
+	pfxSolveLinearConstraintRowNEON(joint.m_constraints[2].m_constraintRow,
+		solverBodyA.m_deltaLinearVelocity,solverBodyA.m_deltaAngularVelocity,solverBodyA.m_massInv,solverBodyA.m_inertiaInv,rA,
+		solverBodyB.m_deltaLinearVelocity,solverBodyB.m_deltaAngularVelocity,solverBodyB.m_massInv,solverBodyB.m_inertiaInv,rB);
+#else // __ARM_NEON__
+// ARA end
+
 	pfxSolveLinearConstraintRow(joint.m_constraints[0].m_constraintRow,
 		solverBodyA.m_deltaLinearVelocity,solverBodyA.m_deltaAngularVelocity,solverBodyA.m_massInv,solverBodyA.m_inertiaInv,rA,
 		solverBodyB.m_deltaLinearVelocity,solverBodyB.m_deltaAngularVelocity,solverBodyB.m_massInv,solverBodyB.m_inertiaInv,rB);
@@ -229,6 +245,10 @@ void pfxSolveSwingTwistJoint(
 	pfxSolveLinearConstraintRow(joint.m_constraints[2].m_constraintRow,
 		solverBodyA.m_deltaLinearVelocity,solverBodyA.m_deltaAngularVelocity,solverBodyA.m_massInv,solverBodyA.m_inertiaInv,rA,
 		solverBodyB.m_deltaLinearVelocity,solverBodyB.m_deltaAngularVelocity,solverBodyB.m_massInv,solverBodyB.m_inertiaInv,rB);
+
+// ARA begin insert new code
+#endif // __ARM_NEON__
+// ARA end
 
 	// Angular Constraint
 	pfxSolveAngularConstraintRow(joint.m_constraints[3].m_constraintRow,

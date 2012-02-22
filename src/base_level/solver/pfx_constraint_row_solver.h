@@ -27,6 +27,17 @@ namespace PhysicsEffects {
 ///////////////////////////////////////////////////////////////////////////////
 // Constraint Row Solver
 
+// ARA begin insert new code
+#ifdef __ARM_NEON__
+// prototype for inline NEON assembly version
+void pfxSolveLinearConstraintRowNEON(PfxConstraintRow &constraint,
+	PfxVector3 &deltaLinearVelocityA,PfxVector3 &deltaAngularVelocityA,
+	PfxFloat &massInvA,const PfxMatrix3 &inertiaInvA,const PfxVector3 &rA,
+	PfxVector3 &deltaLinearVelocityB,PfxVector3 &deltaAngularVelocityB,
+	PfxFloat &massInvB,const PfxMatrix3 &inertiaInvB,const PfxVector3 &rB);
+#endif // __ARM_NEON__
+// ARA end
+
 static SCE_PFX_FORCE_INLINE
 void pfxSolveLinearConstraintRow(PfxConstraintRow &constraint,
 	PfxVector3 &deltaLinearVelocityA,PfxVector3 &deltaAngularVelocityA,

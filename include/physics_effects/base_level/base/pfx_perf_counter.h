@@ -19,6 +19,12 @@ Physics Effects under the filename: physics_effects_license.txt
 
 #include "pfx_common.h"
 
+// ARA begin insert new code
+#ifndef _WIN32
+#include <time.h>
+#endif
+// ARA end
+
 //J パフォーマンス測定する場合はPFX_USE_PERFCOUNTERを定義
 //J ブックマークを使用する場合はPFX_USE_BOOKMARKを定義
 
@@ -46,12 +52,20 @@ private:
 	SCE_PFX_PADDING(1,4)
 #ifdef _WIN32
 	LONGLONG  m_cnt[SCE_PFX_MAX_PERF_COUNT*2];
+#else
+// ARA begin insert new code
+	timespec m_cnt[SCE_PFX_MAX_PERF_COUNT*2];
+// ARA end
 #endif
 
 	void count(int i)
 	{
 #ifdef _WIN32
 		QueryPerformanceCounter( (LARGE_INTEGER *)&m_cnt[i] );
+#else
+// ARA begin insert new code
+		clock_gettime(CLOCK_MONOTONIC, &m_cnt[i]);
+// ARA end
 #endif
 	}
 
@@ -62,6 +76,10 @@ public:
 		LARGE_INTEGER sPerfCountFreq;
 		QueryPerformanceFrequency(&sPerfCountFreq);
 		m_freq = (float)sPerfCountFreq.QuadPart;
+#else
+// ARA begin insert new code 
+		m_freq = 1000000000.0f; // clock_gettime reports time in nanoseconds (though accuracy is platform dependent)
+// ARA end
 #endif
 		resetCount();
 	}
@@ -96,7 +114,10 @@ public:
 #if _WIN32
 	return (float)(m_cnt[i+1]-m_cnt[i]) / m_freq * 1000.0f;
 #else
-	return 0.f;
+// ARA begin insert new code 
+	return float(m_cnt[i+1].tv_sec - m_cnt[i].tv_sec) +
+				 (float(m_cnt[i+1].tv_nsec - m_cnt[i].tv_nsec) / m_freq);
+// ARA end
 #endif	
 }
 

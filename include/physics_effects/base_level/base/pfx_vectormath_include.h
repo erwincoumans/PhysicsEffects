@@ -23,7 +23,7 @@ Physics Effects under the filename: physics_effects_license.txt
 
 // If you want to use vectomath with SIMD,
 // following define is needed.
-// #define SCE_PFX_USE_SIMD_VECTORMATH
+//#define SCE_PFX_USE_SIMD_VECTORMATH
 
 // This option enables to replace original implementation with 
 // vector geometry library.
@@ -31,8 +31,20 @@ Physics Effects under the filename: physics_effects_license.txt
 
 // vectormath include
 #ifdef SCE_PFX_USE_FREE_VECTORMATH
-	#include "../../../vecmath/std/vectormath_aos.h"
-	#include "../../../vecmath/std/floatInVec.h"
+	// ARA begin insert new code
+	#if defined(SCE_PFX_USE_SIMD_VECTORMATH) && defined(__ANDROID__) && defined(__ARM_NEON__)
+		// For Android targets supporting NEON instructions,
+		// use NEON-optimized vector math library
+		#include "../../../vecmath/neon/vectormath_aos.h"
+		#include "../../../vecmath/neon/floatInVec.h"
+	#else
+	// ARA end
+		// use standard free vector math library
+		#include "../../../vecmath/std/vectormath_aos.h"
+		#include "../../../vecmath/std/floatInVec.h"
+	// ARA begin insert new code 
+	#endif
+	// ARA end
 	#define SCE_VECTORMATH_AOS_VECTOR_ARG 
 	#define SCE_VECTORMATH_AOS_MATRIX_ARG 
 

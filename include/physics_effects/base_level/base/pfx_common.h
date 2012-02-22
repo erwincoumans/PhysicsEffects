@@ -96,7 +96,16 @@ static void pfxOutputDebugString(const char *str, ...)
 #if defined(_WIN32)
 	#define SCE_PFX_PRINTF pfxOutputDebugString
 #else
-	#define SCE_PFX_PRINTF(...) printf(__VA_ARGS__)
+// ARA begin insert new code
+	#ifdef __ANDROID__
+		#include <android/log.h>
+		#define SCE_PFX_PRINTF(...) __android_log_print(ANDROID_LOG_VERBOSE, "SCE_PFX_PRINTF", __VA_ARGS__)
+	#else
+		#define SCE_PFX_PRINTF(...) printf(__VA_ARGS__)
+	#endif
+// ARA end, old baseline code block was:
+//	#define SCE_PFX_PRINTF(...) printf(__VA_ARGS__)
+//
 #endif
 
 #define SCE_PFX_UNLIKELY(a)		(a)

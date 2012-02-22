@@ -37,5 +37,10 @@ Physics Effects under the filename: physics_effects_license.txt
 
 #include "sort/pfx_parallel_sort.h"
 
+// ARA begin insert new code 
+#ifdef USE_PTHREADS
+#include "task/pfx_pthreads.h"
+#endif
+// ARA end
 
 #endif // _SCE_PFX_LOW_LEVEL_INCLUDE_H

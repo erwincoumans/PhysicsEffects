@@ -51,7 +51,7 @@ namespace PhysicsEffects {
 /// @param  inertiaInvB               Inertia tensor inverse for object B
 /// @param  rB                        Position of contact point for object B
 //----------------------------------------------------------------------------
-// Tony version
+//GSR version
 void pfxSolveLinearConstraintRowNEON(PfxConstraintRow &constraint,
 	PfxVector3 &deltaLinearVelocityA,PfxVector3 &deltaAngularVelocityA,
 	PfxFloat &massInvA,const PfxMatrix3 &inertiaInvA,const PfxVector3 &rA,
@@ -89,24 +89,20 @@ void pfxSolveLinearConstraintRowNEON(PfxConstraintRow &constraint,
 		"vld1.32 	{d19[1]}, [%10]		\n\t" //rB 1
 		"vld1.32 	{d17[1]}, [%5]!		\n\t" //rA 2
 		"vld1.32 	{d21[1]}, [%10]!	\n\t" //rB 2
-		"vdup.32	q12, d1[1]			\n\t" //set deltaAngularVelocityB 2
-		"vdup.32	q13, d1[1]			\n\t" //set deltaAngularVelocityB 1
-		"vdup.32	q14, d1[1]			\n\t" //set deltaAngularVelocityA 1
-		"vdup.32	q15, d1[1]			\n\t" //set deltaAngularVelocityA 2
-		"vadd.f32 	q14, q14, q1		\n\t"
-		"vadd.f32 	q13, q13, q3		\n\t"
-		"vadd.f32 	q15, q15, q1		\n\t"
-		"vadd.f32 	q12, q12, q3		\n\t"
+		"vmov.f32 	q14, q1				\n\t"
+		"vmov.f32 	q13, q3				\n\t"
+		"vmov.f32 	q15, q1				\n\t"
+		"vmov.f32 	q12, q3				\n\t"
 		"vrev64.32	d28, d28			\n\t" //set deltaAngularVelocityA 1
-		"vrev64.32	d26, d26			\n\t" //set deltaAngularVelocityB 1
-		"vtrn.32	d30, d31			\n\t" //set deltaAngularVelocityA 2
-		"vtrn.32	d24, d25			\n\t" //set deltaAngularVelocityB 2
 		"vtrn.32	d28, d29			\n\t" //set deltaAngularVelocityA 1
+		"vrev64.32	d26, d26			\n\t" //set deltaAngularVelocityB 1
+		"vmul.f32 	q14, q7, q14		\n\t" //operation for cross product 1A
 		"vtrn.32	d26, d27			\n\t" //set deltaAngularVelocityB 1
+		"vtrn.32	d30, d31			\n\t" //set deltaAngularVelocityA 2
+		"vmul.f32 	q13, q9, q13		\n\t" //operation for cross product 1B
+		"vtrn.32	d24, d25			\n\t" //set deltaAngularVelocityB 2
 		"vrev64.32	d30, d30			\n\t" //set deltaAngularVelocityA 2
 		"vrev64.32	d24, d24			\n\t" //set deltaAngularVelocityB 2
-		"vmul.f32 	q14, q7, q14		\n\t" //operation for cross product 1A
-		"vmul.f32 	q13, q9, q13		\n\t" //operation for cross product 1B
 		"vmls.f32 	q14, q8, q15		\n\t" //operation for cross product 2A
 		"vmls.f32 	q13, q10, q12		\n\t" //operation for cross product 2B
 		"vadd.f32 	q14, q14, q0		\n\t" //operation for adding cross to linearVelocityA
@@ -143,22 +139,20 @@ void pfxSolveLinearConstraintRowNEON(PfxConstraintRow &constraint,
 		"vmul.f32	q11, q11, d10[0]	\n\t" //TEMP q11 => operation result times DeltaImpulse A
 		"vmul.f32	q12, q12, d10[0]	\n\t" //TEMP q12 => operation result times DeltaImpulse B
 		"vadd.f32	q0, q0, q11			\n\t" //operation create new deltaLinearVelocityA A
-		"vsub.f32	q2, q2, q12			\n\t" //operation create new deltaLinearVelocityB B
 		"vst1.32	{q0}, [%1]			\n\t" //store the new deltaLinearVelocityA A
+		"vsub.f32	q2, q2, q12			\n\t" //operation create new deltaLinearVelocityB B
 		"vst1.32	{q2}, [%6]			\n\t" //store the new deltaLinearVelocityB B
 												//FREE q0, q2, q6, q11, q12, q13, q14, q15, d11
 		//deltaAngularVelocityA += deltaImpulse * inertiaInvA * cross(rA,normal);
 		//deltaAngularVelocityB -= deltaImpulse * inertiaInvB * cross(rB,normal);
-		"vdup.32	q14, d1[1]			\n\t" //set normal cross load
-		"vdup.32	q15, d1[1]			\n\t" //
-		"vadd.f32 	q14, q14, q4		\n\t" //
-		"vadd.f32 	q15, q15, q4		\n\t" //
-		"vrev64.32	d28, d28			\n\t" //
+		"vmov.f32 	q14, q4				\n\t" //
+		"vmov.f32 	q15, q4				\n\t" //
 		"vtrn.32	d30, d31			\n\t" //
-		"vtrn.32	d28, d29			\n\t" //
 		"vrev64.32	d30, d30			\n\t" //
 		"vmul.f32 	q0, q8, q15			\n\t" //operation for cross product A
+		"vrev64.32	d28, d28			\n\t" //
 		"vmul.f32 	q2, q10, q15		\n\t" //operation for cross product B
+		"vtrn.32	d28, d29			\n\t" //
 		"vmls.f32 	q0, q14, q7			\n\t" //operation for cross product A
 		"vmls.f32 	q2, q14, q9			\n\t" //operation for cross product B
 										  	  	//LOAD => cross product result A ------------> q0
@@ -178,8 +172,8 @@ void pfxSolveLinearConstraintRowNEON(PfxConstraintRow &constraint,
 		"vmul.f32   q13, q13, d10[0]    \n\t" //operation inertiaInvA times deltaImpulse A
 		"vmul.f32   q9, q9, d10[0]      \n\t" //operation inertiaInvB times deltaImpulse B
 		"vadd.f32   q1, q1, q13      	\n\t" //operation accumulate the deltaAngularVelocityA A
-		"vsub.f32   q3, q3, q9      	\n\t" //operation accumulate the deltaAngularVelocityB B
 		"vst1.32    {q1}, [%2]      	\n\t" //store deltaAngularVelocityA A
+		"vsub.f32   q3, q3, q9      	\n\t" //operation accumulate the deltaAngularVelocityB B
 		"vst1.32    {q3}, [%7]      	\n\t" //store deltaAngularVelocityB B
 		: // NO direct outputs! It is important to *not* put anything here. Real output is written directly to memory pointed to by inputs
 		: "r" (&constraint), "r" (&deltaLinearVelocityA), "r" (&deltaAngularVelocityA), "r" (&massInvA), "r" (&inertiaInvA), "r" (&rA), "r" (&deltaLinearVelocityB), "r" (&deltaAngularVelocityB), "r" (&massInvB), "r" (&inertiaInvB), "r" (&rB) //inputs
@@ -189,6 +183,4 @@ void pfxSolveLinearConstraintRowNEON(PfxConstraintRow &constraint,
 
 } //namespace PhysicsEffects
 } //namespace sce
-
 #endif //__ANDROID__
-
